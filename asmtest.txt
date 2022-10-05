@@ -1,0 +1,7 @@
+.Done:
+	add t0 t0 zero
+	li t0 0xFFFF
+	li t1 0x125F
+	call .Man
+.Man:
+	add t1 t1 zero
