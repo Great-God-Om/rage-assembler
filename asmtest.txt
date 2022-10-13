@@ -1,7 +1,9 @@
 .Done:
-	add t0 t0 zero
+	add t0 t0 zero // This is a commend and should be ignored
 	li t0 0xFFFF
 	li t1 0x125F
 	call .Man
+	cmp t0 EQ t0
+	brc .Done
 .Man:
 	add t1 t1 zero

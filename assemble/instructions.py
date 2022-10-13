@@ -26,11 +26,21 @@ CORE_INSTRUCTIONS_OPS: dict[str, int] = {
     "lw": 5,
     "sw": 6,
     "lui": 7,
-    "jal": 8,
-    "cmp": 9,
-    "brc": 10,
-    "sub": 11,
-    "sl": 12,
-    "sr": 13,
-    "swp": 14,
+    "cmp": 8,
+    "brc": 9,
+    "sub": 10,
+    "sl": 11,
+    "sr": 12,
+    "swp": 13,
+}
+
+COMP_OPS: dict[str, int] = {
+    "FALSE": 0,
+    "GT": 1,
+    "EQ": 2,
+    "GEQ": 3,
+    "LT": 4,
+    "NEQ": 5,
+    "LEQ": 6,
+    "True": 7,
 }

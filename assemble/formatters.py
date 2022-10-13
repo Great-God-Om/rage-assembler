@@ -5,19 +5,21 @@ from typing import Callable, Union
 
 # Instruction Type Formatters
 def r_type(opcode: int, rd: int, rs1: int, rs2: int) -> str:
-    return "{3:04b} {2:04b} {1:04b} {0:04b}".format(opcode, rd, rs1, rs2)
+    return "{3:04} {2:04b} {1:04b} {0:04b}".format(opcode, rd, rs1, rs2)
 
 
 def m_type(opcode: int, rd: int, rs1: int, imm: int) -> str:
-    return "{3:04b} {2:04b} {1:04b} {1:04b}".format(opcode, rd, rs1, imm)
+    return "{3:>04} {2:04b} {1:04b} {0:04b}".format(
+        opcode, rd, rs1, bin(imm & 0b1111)[2:]
+    )
 
 
 def i_type(opcode: int, rd: int, imm: int) -> str:
-    return "{2:08b} {1:04b} {0:04b}".format(opcode, rd, imm)
+    return "{2:>08} {1:04b} {0:04b}".format(opcode, rd, bin(imm & 0b11111111)[2:])
 
 
 def l_type(opcode: int, imm: int) -> str:
-    return "{1:012b} {0:04b}".format(opcode, imm)
+    return "{1:>012} {0:04b}".format(opcode, bin(imm & 0b111111111111)[2:])
 
 
 # Pseudo-Instruction Formatters
@@ -43,8 +45,8 @@ def call(label: str) -> list[str]:
     ]
 
 
-def jump(label: str) -> None:
-    pass
+def jump(label: str) -> list[str]:
+    return ["cmp x0 TRUE x0", "brc 0x0"]
 
 
 Formatter = Callable[..., Union[str, list[str]]]

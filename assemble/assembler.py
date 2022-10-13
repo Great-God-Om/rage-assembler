@@ -1,9 +1,15 @@
+# TODO: Implement lw and storeword, Implement Comment support
+
 from typing import Iterable
 
 from hardware_definitions.registers import REGISTERS
 
 from assemble.formatters import Formatter, li
-from assemble.instructions import CORE_INSTRUCTIONS_FORMATS, CORE_INSTRUCTIONS_OPS
+from assemble.instructions import (
+    COMP_OPS,
+    CORE_INSTRUCTIONS_FORMATS,
+    CORE_INSTRUCTIONS_OPS,
+)
 from assemble.outputters import Outputter
 from assemble.pseudoinstructions import PSEUDO_INSTRUCTIONS
 
@@ -43,10 +49,16 @@ def expand_pseudo_instructions(asm: Iterable) -> list[str]:
         op, *rest = instr.split(" ")
         if op in PSEUDO_INSTRUCTIONS:
             # PSEUDO INSTRUCTION
-            if op == "call" or op == "jump":
+            if op == "call":
                 # References need to be updated and dummy address provided
                 label: str = rest[0]
                 references.update({label: references.get(label, []) + [current_line]})
+                rest = ["0x00"]
+            elif op == "jump":
+                label: str = rest[0]
+                references.update(
+                    {label: references.get(label, []) + [current_line + 1]}
+                )
                 rest = ["0x00"]
             a: tuple[list[str], int] = expand_and_merge(
                 expanded_asm, current_line, op, *rest
@@ -72,19 +84,36 @@ def update_instruction_addresses(asm: list[str]) -> list[str]:
 
 def to_machine_code(asm: list[str]) -> list[str]:
     out = []
-    for line in asm:
-        op, *args = line.split(" ")
+    for number, line in enumerate(asm):
+        op, *args, comment = line.split(" ")
         if op.replace(":", "") in labels:
             continue
         formatter = CORE_INSTRUCTIONS_FORMATS[op]
-
-        out.append(
-            formatter(
-                CORE_INSTRUCTIONS_OPS[op],
-                *list(
-                    map(lambda x: REGISTERS[x] if x in REGISTERS else int(x, 0), args)
-                ),
+        if op == "cmp":
+            out.append(
+                formatter(
+                    CORE_INSTRUCTIONS_OPS[op],
+                    *[REGISTERS[args[0]], REGISTERS[args[2]], COMP_OPS[args[1]]],
+                )
             )
-        )
-
+        elif op == "brc":
+            print(labels[args[0]] - number)
+            out.append(
+                formatter(
+                    CORE_INSTRUCTIONS_OPS[op],
+                    *[labels[args[0]] - number],
+                )
+            )
+        else:
+            out.append(
+                formatter(
+                    CORE_INSTRUCTIONS_OPS[op],
+                    *list(
+                        map(
+                            lambda x: REGISTERS[x] if x in REGISTERS else int(x, 0),
+                            args,
+                        )
+                    ),
+                )
+            )
     return out
