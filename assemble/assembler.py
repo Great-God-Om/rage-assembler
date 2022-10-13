@@ -1,4 +1,4 @@
-# TODO: Implement lw and storeword, Implement Comment support
+# TODO: Implement lw and storeword
 
 from typing import Iterable
 
@@ -20,15 +20,20 @@ references: dict[str, list[int]] = {}
 
 
 def assemble(ifile: str, outputter: Outputter) -> None:
+    def remove_comment(line: str) -> str:
+        comloc = line.find("//")
+        return line[:comloc].strip() if comloc != -1 else line
+
     # Read input file
     with open(ifile, "r") as source:
-        asm: filter[str] = filter(
+        asm = filter(
             lambda x: x != "",
             map(
                 lambda line: line.replace("\n", "").replace("\t", ""),
                 source.readlines(),
             ),
         )
+    asm = map(remove_comment, asm)
     expanded_asm: list[str] = expand_pseudo_instructions(asm)
     full_asm: list[str] = update_instruction_addresses(expanded_asm)
     binary = to_machine_code(full_asm)
@@ -85,7 +90,7 @@ def update_instruction_addresses(asm: list[str]) -> list[str]:
 def to_machine_code(asm: list[str]) -> list[str]:
     out = []
     for number, line in enumerate(asm):
-        op, *args, comment = line.split(" ")
+        op, *args = line.split(" ")
         if op.replace(":", "") in labels:
             continue
         formatter = CORE_INSTRUCTIONS_FORMATS[op]
