@@ -49,7 +49,6 @@ def expand_pseudo_instructions(asm: Iterable) -> list[str]:
     expanded_asm = list(asm)
     current_line: int = 0
     for instr in expanded_asm:
-        print(f"Currently Evaluating: {current_line} {instr}")
         op, *rest = instr.split(" ")
         if op in PSEUDO_INSTRUCTIONS:
             # PSEUDO INSTRUCTION
@@ -101,7 +100,6 @@ def to_machine_code(asm: list[str]) -> list[str]:
                 )
             )
         elif op == "brc":
-            print(labels[args[0]] - number)
             out.append(
                 formatter(
                     CORE_INSTRUCTIONS_OPS[op],
