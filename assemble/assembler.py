@@ -1,6 +1,6 @@
-# TODO: Implement lw and storeword
+# TODO: Implement import from other files
 
-from typing import Iterable
+from typing import Iterable, Union
 
 from assemble.formatters import Formatter, li
 from assemble.instructions import (
@@ -32,10 +32,10 @@ def assemble(ifile: str, outputter: Outputter) -> None:
                 source.readlines(),
             ),
         )
-    asm = map(remove_comment, asm)
+    asm: Union[map[str], filter[str]] = map(remove_comment, asm)
     expanded_asm: list[str] = expand_pseudo_instructions(asm)
     full_asm: list[str] = update_instruction_addresses(expanded_asm)
-    binary = to_machine_code(full_asm)
+    binary: list[str] = to_machine_code(full_asm)
     outputter(binary)
 
 
