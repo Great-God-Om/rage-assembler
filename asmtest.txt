@@ -5,5 +5,6 @@
 	call .Man
 	cmp t0 EQ t0
 	brc .Done
+	lw t0 2(zero)
 .Man:
 	add t1 t1 zero

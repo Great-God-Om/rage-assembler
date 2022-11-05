@@ -2,8 +2,6 @@
 
 from typing import Iterable
 
-from hardware_definitions.registers import REGISTERS
-
 from assemble.formatters import Formatter, li
 from assemble.instructions import (
     COMP_OPS,
@@ -12,6 +10,7 @@ from assemble.instructions import (
 )
 from assemble.outputters import Outputter
 from assemble.pseudoinstructions import PSEUDO_INSTRUCTIONS
+from hardware_definitions.registers import REGISTERS
 
 ARG_DELIM: str = " "
 
@@ -58,7 +57,7 @@ def expand_pseudo_instructions(asm: Iterable) -> list[str]:
                 # References need to be updated and dummy address provided
                 label: str = rest[0]
                 references.update({label: references.get(label, []) + [current_line]})
-                rest = ["0x00"]
+                rest: list[str] = ["0x00"]
             elif op == "jump":
                 label: str = rest[0]
                 references.update(
@@ -107,6 +106,16 @@ def to_machine_code(asm: list[str]) -> list[str]:
                 formatter(
                     CORE_INSTRUCTIONS_OPS[op],
                     *[labels[args[0]] - number],
+                )
+            )
+        elif op == "lw" or op == "sw":
+            imm, rs1 = args[1].split("(")
+            out.append(
+                formatter(
+                    CORE_INSTRUCTIONS_OPS[op],
+                    REGISTERS[args[0]],
+                    REGISTERS[rs1[:-1]],
+                    int(imm),
                 )
             )
         else:
