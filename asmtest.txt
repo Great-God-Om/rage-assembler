@@ -1,10 +1,58 @@
-.Done:
-	add t0 t0 zero // This is a commend and should be ignored
-	li t0 0xFFFF
-	li t1 0x125F
-	call .Man
-	cmp t0 EQ t0
-	brc .Done
-	lw t0 2(zero)
-.Man:
-	add t1 t1 zero
+.REL_PRIME: // 0
+    addi sp -3          
+    sw ra 0(sp)
+    sw a0 1(sp)
+    add t0 x0 x0
+    addi t0 2           // t0 = m = 2
+    sw t0 2(sp)         // save m
+.LOOP_1: // 6
+    lw a0 1(sp)         //set argument 1
+    lw a1 2(sp)         // set argument 2
+    lui ra 0
+    addi ra 0
+    swp ra pc
+    add t3 x0 x0
+    addi t3 1
+    cmp a0 == t3          // compare whether the result of gcd ==1
+    brc .DONE_1          // if so  jump to done. If not  keep running following code
+    lw t0 2(sp)         // restore value of m
+    addi t0 1           // m = m + 1
+    sw t0 2(sp)         // update value of m in stack
+    cmp x0 TRUE x0
+    brc .LOOP_1
+.DONE_1: //20
+    lw a0 2(sp)        // set return value to m
+    lw ra 0(sp)         // restore return address
+    addi sp 3        // finish function calling
+    swp ra pc
+.GCD: 24//
+    addi sp -1
+    sw ra 0(sp)
+    add t0 a0 x0
+	add t1 a1 x0
+	cmp t0 == x0         // if(a==0) return b
+    brc .CASE_A
+.LOOP_2:
+    cmp t1 == x0         // while (b != 0)
+	brc .CASE_B
+	cmp t1 < t0         // if(a > b)
+	brc .C_1
+	sub t1 t1 t0        // b = b - a
+	cmp x0 jump x0      //Jump to loop
+	brc .LOOP_2
+.C_1:
+    sub t0 t0 t1        // a = a - b
+	cmp x0 jump x0      //Jump to loop
+    brc .LOOP_2
+.CASE_A:
+    add a0 a1 x0        //Return register a0 = b
+    cmp x0 jump x0      //Jump to DONE
+    brc .DONE_2
+.CASE_B:
+    add a0 t0 x0
+    cmp x0 jump x0      //Jump to DONE
+    brc .DONE_2
+.DONE_2:
+    lw ra 0(sp)
+    addi sp 1
+    swp ra pc

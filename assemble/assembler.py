@@ -28,7 +28,7 @@ def assemble(ifile: str, outputter: Outputter) -> None:
         asm = filter(
             lambda x: x != "",
             map(
-                lambda line: line.replace("\n", "").replace("\t", ""),
+                lambda line: line.strip().replace("\n", "").replace("\t", ""),
                 source.readlines(),
             ),
         )
@@ -64,14 +64,15 @@ def expand_pseudo_instructions(asm: Iterable) -> list[str]:
                 )
                 rest = ["0x00"]
             a: tuple[list[str], int] = expand_and_merge(
-                expanded_asm, current_line, op, *rest
+                expanded_asm, current_line + len(labels), op, *rest
             )
             expanded_asm: list[str] = a[0]
             current_line += a[1] - 1
-        elif op not in CORE_INSTRUCTIONS_OPS:
+        elif op not in CORE_INSTRUCTIONS_OPS and "." in op:
             # is a label Definition
             label = op[:-1]
             labels.update({label: current_line})
+            continue
         current_line += 1
     return expanded_asm
 
@@ -88,6 +89,7 @@ def update_instruction_addresses(asm: list[str]) -> list[str]:
 def to_machine_code(asm: list[str]) -> list[str]:
     out = []
     for number, line in enumerate(asm):
+        print(f"Evaluating line {number}: {line}")
         op, *args = line.split(" ")
         if op.replace(":", "") in labels:
             continue
@@ -96,10 +98,15 @@ def to_machine_code(asm: list[str]) -> list[str]:
             out.append(
                 formatter(
                     CORE_INSTRUCTIONS_OPS[op],
-                    *[REGISTERS[args[0]], REGISTERS[args[2]], COMP_OPS[args[1]]],
+                    *[
+                        REGISTERS[args[0]],
+                        REGISTERS[args[2]],
+                        COMP_OPS[args[1].upper()],
+                    ],
                 )
             )
         elif op == "brc":
+            print(labels[args[0]] - number)
             out.append(
                 formatter(
                     CORE_INSTRUCTIONS_OPS[op],

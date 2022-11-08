@@ -2,6 +2,7 @@
 REGISTERS: dict[str, int] = {
     # General Purpose Registers
     "zero": 0,
+    "x0": 0,
     "ra": 1,
     "sp": 2,
     "t0": 3,
