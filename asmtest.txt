@@ -1,11 +1,11 @@
-.REL_PRIME: // 0
+.REL_PRIME:
     addi sp -3          
     sw ra 0(sp)
     sw a0 1(sp)
     add t0 x0 x0
     addi t0 2           // t0 = m = 2
     sw t0 2(sp)         // save m
-.LOOP_1: // 6
+.LOOP_1:
     lw a0 1(sp)         //set argument 1
     lw a1 2(sp)         // set argument 2
     lui ra 0
@@ -20,12 +20,12 @@
     sw t0 2(sp)         // update value of m in stack
     cmp x0 TRUE x0
     brc .LOOP_1
-.DONE_1: //20
+.DONE_1:
     lw a0 2(sp)        // set return value to m
     lw ra 0(sp)         // restore return address
     addi sp 3        // finish function calling
     swp ra pc
-.GCD: 24//
+.GCD:
     addi sp -1
     sw ra 0(sp)
     add t0 a0 x0
@@ -40,7 +40,7 @@
 	sub t1 t1 t0        // b = b - a
 	cmp x0 jump x0      //Jump to loop
 	brc .LOOP_2
-.C_1:
+.C_1: //20
     sub t0 t0 t1        // a = a - b
 	cmp x0 jump x0      //Jump to loop
     brc .LOOP_2

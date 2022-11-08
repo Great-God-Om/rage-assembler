@@ -35,7 +35,9 @@ def assemble(ifile: str, outputter: Outputter) -> None:
     asm: Union[map[str], filter[str]] = map(remove_comment, asm)
     expanded_asm: list[str] = expand_pseudo_instructions(asm)
     full_asm: list[str] = update_instruction_addresses(expanded_asm)
-    binary: list[str] = to_machine_code(full_asm)
+    binary: list[str] = to_machine_code(
+        list(filter(lambda l: l[:-1] not in labels, full_asm))
+    )
     outputter(binary)
 
 
