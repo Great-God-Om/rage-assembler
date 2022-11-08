@@ -95,7 +95,7 @@ def to_machine_code(asm: list[str]) -> list[str]:
         op, *args = line.split(" ")
         if op.replace(":", "") in labels:
             continue
-        formatter = CORE_INSTRUCTIONS_FORMATS[op]
+        formatter: Formatter = CORE_INSTRUCTIONS_FORMATS[op]
         if op == "cmp":
             out.append(
                 formatter(
