@@ -3,7 +3,7 @@ def memfile(binout: bool):
         with open("mem.txt", "w") as mem:
             for line in binary:
                 if not binout:
-                    mem.write(f"{hex(int(line, 2))}\n")
+                    mem.write("{0:>04}\n".format(hex(int(line, 2)).upper()[2:]))
                 else:
                     mem.write(f"{line}\n")
 
