@@ -49,8 +49,12 @@ def jump(label: str) -> list[str]:
     return ["cmp x0 TRUE x0", "brc 0x0"]
 
 
-def swp(rd: str, rs1: str):
+def swp(rd: str, rs1: str) -> list[str]:
     return [f"swp {rd} {rd} {rs1}"]
+
+
+def noop() -> list[str]:
+    return ["add zero zero zero"]
 
 
 Formatter = Callable[..., Union[str, list[str]]]

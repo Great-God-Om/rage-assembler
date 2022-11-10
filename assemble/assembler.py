@@ -1,6 +1,5 @@
 # TODO: Implement import from other files
 
-from typing import Iterable, Union
 
 from assemble.formatters import Formatter, li
 from assemble.instructions import (
@@ -20,7 +19,7 @@ references: dict[str, list[int]] = {}
 
 def assemble(ifile: str, outputter: Outputter) -> None:
     def remove_comment(line: str) -> str:
-        comloc = line.find("//")
+        comloc: int = line.find("//")
         return line[:comloc].strip() if comloc != -1 else line
 
     # Read input file
@@ -32,7 +31,7 @@ def assemble(ifile: str, outputter: Outputter) -> None:
                 source.readlines(),
             ),
         )
-    asm: Union[map[str], filter[str]] = map(remove_comment, asm)
+    asm = map(remove_comment, asm)
     expanded_asm: list[str] = expand_pseudo_instructions(asm)
     full_asm: list[str] = update_instruction_addresses(expanded_asm)
     binary: list[str] = to_machine_code(
@@ -41,7 +40,7 @@ def assemble(ifile: str, outputter: Outputter) -> None:
     outputter(binary)
 
 
-def expand_pseudo_instructions(asm: Iterable) -> list[str]:
+def expand_pseudo_instructions(asm) -> list[str]:
     # Expand instruction and merge with the current line
     def expand_and_merge(asm, line, op, *args) -> tuple[list[str], int]:
         formatter: Formatter = PSEUDO_INSTRUCTIONS[op]
@@ -65,6 +64,10 @@ def expand_pseudo_instructions(asm: Iterable) -> list[str]:
                     {label: references.get(label, []) + [current_line + 1]}
                 )
                 rest = ["0x00"]
+            if op == "swp" and len(rest) > 2:
+                # this is shit but
+                current_line += 1
+                continue
             a: tuple[list[str], int] = expand_and_merge(
                 expanded_asm, current_line + len(labels), op, *rest
             )
@@ -112,7 +115,7 @@ def to_machine_code(asm: list[str]) -> list[str]:
             out.append(
                 formatter(
                     CORE_INSTRUCTIONS_OPS[op],
-                    *[labels[args[0]] - number],
+                    *[2 * (labels[args[0]] - number)],
                 )
             )
         elif op == "lw" or op == "sw":

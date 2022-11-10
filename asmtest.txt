@@ -1,58 +1,33 @@
-.REL_PRIME:
-    addi sp -3          
-    sw ra 0(sp)
-    sw a0 1(sp)
-    add t0 x0 x0
-    addi t0 2           // t0 = m = 2
-    sw t0 2(sp)         // save m
-.LOOP_1:
-    lw a0 1(sp)         //set argument 1
-    lw a1 2(sp)         // set argument 2
-    lui ra 0
-    addi ra 0
-    swp ra pc
-    add t3 x0 x0
-    addi t3 1
-    cmp a0 == t3          // compare whether the result of gcd ==1
-    brc .DONE_1          // if so  jump to done. If not  keep running following code
-    lw t0 2(sp)         // restore value of m
-    addi t0 1           // m = m + 1
-    sw t0 2(sp)         // update value of m in stack
-    cmp x0 TRUE x0
-    brc .LOOP_1
-.DONE_1:
-    lw a0 2(sp)        // set return value to m
-    lw ra 0(sp)         // restore return address
-    addi sp 3        // finish function calling
-    swp ra pc
-.GCD:
-    addi sp -1
-    sw ra 0(sp)
-    add t0 a0 x0
-	add t1 a1 x0
-	cmp t0 == x0         // if(a==0) return b
-    brc .CASE_A
-.LOOP_2:
-    cmp t1 == x0         // while (b != 0)
-	brc .CASE_B
-	cmp t1 < t0         // if(a > b)
-	brc .C_1
-	sub t1 t1 t0        // b = b - a
-	cmp x0 jump x0      //Jump to loop
-	brc .LOOP_2
-.C_1: //20
-    sub t0 t0 t1        // a = a - b
-	cmp x0 jump x0      //Jump to loop
-    brc .LOOP_2
-.CASE_A:
-    add a0 a1 x0        //Return register a0 = b
-    cmp x0 jump x0      //Jump to DONE
-    brc .DONE_2
-.CASE_B:
+addi sp -2
+addi t0 0
+addi t1 7
+.Loop: 
+    cmp t1 <= t0
+    brc .exit
+    sw t0 0(sp)
+    sw t1 1(sp)
+    li ra 0x0038 // 7
     add a0 t0 x0
-    cmp x0 jump x0      //Jump to DONE
-    brc .DONE_2
-.DONE_2:
-    lw ra 0(sp)
-    addi sp 1
-    swp ra pc
+    swp ra pc ra
+    noop
+    lw t0 0(sp)
+    lw t1 1(sp)
+    addi t0 1
+    cmp x0 = x0
+    brc .Loop
+    noop
+.exit:
+    addi sp 2
+    add ra x0 x0
+.halt:
+    li ra 0xFFFF
+    swp ra pc ra
+    noop
+    noop
+    noop
+.print:
+    lui t0 0xFF
+    sw a0 0(t0)
+    addi ra 2
+    swp ra pc ra
+    noop
