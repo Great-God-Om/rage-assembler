@@ -6,6 +6,12 @@ from assemble.outputters.stdout import consoleout
 
 
 def main() -> None:
+
+    if len(argv) < 1 or "--help" in argv or "-h" in argv:
+        print(
+            "Usage: command [input file] [--help| - | --bin | --hex]\n -: for console output \n --bin: for binary output to a new file called mem.txt\n --hex: for hex valued output to a new file called mem.txt\n"
+        )
+        return
     input_file: str = argv[1]
     if "-" in argv:
         assemble(input_file, consoleout)

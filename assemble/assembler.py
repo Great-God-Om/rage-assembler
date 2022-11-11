@@ -8,6 +8,7 @@ from assemble.instructions import (
     CORE_INSTRUCTIONS_OPS,
 )
 from assemble.outputters import Outputter
+from assemble.preprocessor import preprocess
 from assemble.pseudoinstructions import PSEUDO_INSTRUCTIONS
 from hardware_definitions.registers import REGISTERS
 
@@ -31,12 +32,12 @@ def assemble(ifile: str, outputter: Outputter) -> None:
                 source.readlines(),
             ),
         )
-    asm = map(remove_comment, asm)
+    asm: list[str] = list(map(remove_comment, preprocess(list(asm))))
     expanded_asm: list[str] = expand_pseudo_instructions(asm)
-    full_asm: list[str] = update_instruction_addresses(expanded_asm)
-    binary: list[str] = to_machine_code(
-        list(filter(lambda l: l[:-1] not in labels, full_asm))
+    full_asm: list[str] = update_instruction_addresses(
+        list(filter(lambda l: l[:-1] not in labels, expanded_asm))
     )
+    binary: list[str] = to_machine_code(full_asm)
     outputter(binary)
 
 
@@ -60,9 +61,7 @@ def expand_pseudo_instructions(asm) -> list[str]:
                 rest: list[str] = ["0x00"]
             elif op == "jump":
                 label: str = rest[0]
-                references.update(
-                    {label: references.get(label, []) + [current_line + 1]}
-                )
+                references.update({label: references.get(label, []) + [current_line]})
                 rest = ["0x00"]
             if op == "swp" and len(rest) > 2:
                 # this is shit but
@@ -104,8 +103,8 @@ def to_machine_code(asm: list[str]) -> list[str]:
                 formatter(
                     CORE_INSTRUCTIONS_OPS[op],
                     *[
-                        REGISTERS[args[0]],
                         REGISTERS[args[2]],
+                        REGISTERS[args[0]],
                         COMP_OPS[args[1].upper()],
                     ],
                 )
