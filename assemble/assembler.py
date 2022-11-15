@@ -110,7 +110,6 @@ def to_machine_code(asm: list[str]) -> list[str]:
                 )
             )
         elif op == "brc":
-            print(labels[args[0]] - number)
             out.append(
                 formatter(
                     CORE_INSTRUCTIONS_OPS[op],
